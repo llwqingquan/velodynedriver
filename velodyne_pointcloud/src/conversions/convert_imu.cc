@@ -77,7 +77,7 @@ bool Imu::process()
 {
   if (!imuFile_.is_open())
   {
-    ROS_ERROR("File open failed!");
+    ROS_ERROR_THROTTLE(1,"File open failed!");
     return false;
   }
   else if (imuFile_.eof())

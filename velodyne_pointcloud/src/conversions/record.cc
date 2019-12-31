@@ -30,8 +30,12 @@ Record::Record(ros::NodeHandle node, ros::NodeHandle private_nh)
     ROS_ERROR("set the bag file directory!");
   }
   ros::Time Time = ros::Time::now();
-  uint32_t sec = Time.sec;
-  std::string str = config_.bag_dir + std::to_string(sec) + ".bag";
+  time_t timesec = Time.sec;
+  tm* temp = localtime(&timesec);
+  std::string filename = std::to_string(temp->tm_year + 1900) + "-" + std::to_string(temp->tm_mon + 1) + "-" +
+                         std::to_string(temp->tm_mday) + "_" + std::to_string(temp->tm_hour) + ":" +
+                         std::to_string(temp->tm_min) + ":" + std::to_string(temp->tm_sec);
+  std::string str = config_.bag_dir + filename + ".bag";
   // open bag file and set compression mode
   bag_.open(str, rosbag::bagmode::Write);
   bag_.setCompression(rosbag::CompressionType::LZ4);
