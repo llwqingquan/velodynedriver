@@ -611,6 +611,5 @@ inline float SQR(float val) { return val*val; }
         data.newLine();
       }
     }
-    ROS_INFO_STREAM_COND(data.cloud.width==0,"stepTest= "<<stepTest<<" test");
   }
 } // namespace velodyne_rawdata

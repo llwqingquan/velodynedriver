@@ -134,7 +134,6 @@ namespace velodyne_pointcloud
   /** @brief Callback for raw scan messages. */
   void Convert::processScan(const velodyne_msgs::VelodyneScan::ConstPtr &scanMsg)
   {
-    int test=0;
     if (output_.getNumSubscribers() == 0)         // no one listening?
       return;                                     // avoid much work
 
@@ -147,8 +146,7 @@ namespace velodyne_pointcloud
     {
       data_->unpack(scanMsg->packets[i], *container_ptr_, scanMsg->header.stamp);
     }
-    ROS_INFO_STREAM_COND(container_ptr_->cloud.width==0,"cloud.header.stamp= "<<container_ptr_->cloud.header.stamp<<"test"<<test);
-    ROS_INFO_STREAM_COND(container_ptr_->cloud.width==0,"scanMsg->packets= "<<scanMsg->packets[0].data[0]);
+    // ROS_INFO_STREAM_COND(container_ptr_->cloud.width==0,"cloud.header.stamp= "<<container_ptr_->cloud.header.stamp);
     // publish the accumulated cloud message
     diag_topic_->tick(scanMsg->header.stamp);
     diagnostics_.update();

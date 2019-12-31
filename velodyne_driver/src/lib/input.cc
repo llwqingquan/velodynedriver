@@ -340,18 +340,29 @@ int InputPCAP::getPacket(velodyne_msgs::VelodynePacket* pkt, const double time_o
         setenv("TZ", "Universal", 1);
         time_UTC_sec_ = mktime(&utc_time);
 
-        // uint32_t week_sec = timeConvert(time_UTC_sec_);
-        // ROS_INFO_STREAM("mktime "<< week_sec);
+        ROS_INFO_ONCE("get gprmc msg!");
         continue;
       }
       // get packet data
       else if (header->caplen == 1248)
       {
-        if (time_UTC_sec_ == 0 && use_pcap_utc_time_)
+        if (use_pcap_utc_time_)
         {
-          ROS_INFO("stamp time:time_UTC_sec_= 0");
-          continue;
+          if (time_UTC_sec_ == 0)
+          {
+            ROS_INFO_THROTTLE(1, "no utc time from gprmc, skip!");
+            continue;
+          }
+          else
+          {
+            ROS_INFO_ONCE("get utc time from gprmc!");
+          }
         }
+        else
+        {
+          ROS_INFO_ONCE("Do not utc time from gprmc!");
+        }
+        
         // ROS_INFO_STREAM("time_UTC_sec_= "<<time_UTC_sec_);
 
         // Keep the reader from blowing through the file.
@@ -377,8 +388,7 @@ int InputPCAP::getPacket(velodyne_msgs::VelodynePacket* pkt, const double time_o
           if (use_pcap_utc_time_)
           {
             pkt->stamp = rosTimeFromUtcTimestamp(&(pkt->data[1200]), time_UTC_sec_);
-            ROS_INFO_STREAM_THROTTLE(5, "use_pcap_utc_time, stamp= " << pkt->stamp);
-            // ROS_INFO_STREAM_COND(pkt->stamp==ros::Time(200959,323786000),pkt->stamp);
+            // ROS_INFO_STREAM_THROTTLE(5, "use_pcap_utc_time, stamp= " << pkt->stamp);
           }
           else
           {
@@ -391,7 +401,7 @@ int InputPCAP::getPacket(velodyne_msgs::VelodynePacket* pkt, const double time_o
       }
       else
       {
-        ROS_ERROR("caplen not 554 and 1248");
+        ROS_ERROR("pcap file length error!");
       }
 
       // empty_ = false;
@@ -416,8 +426,8 @@ int InputPCAP::getPacket(velodyne_msgs::VelodynePacket* pkt, const double time_o
       usleep(rint(repeat_delay_ * 1000000.0));
     }
 
-    ROS_DEBUG("replaying Velodyne dump file");
-    ROS_INFO_STREAM_THROTTLE(1,"res="<<res<<", Pcap file end!");
+    ROS_INFO_STREAM_THROTTLE(2, "res=" << res << ", pcap file end!");
+    // ROS_DEBUG("replaying Velodyne dump file");
     // I can't figure out how to rewind the file, because it
     // starts with some kind of header.  So, close the file
     // and reopen it with pcap.

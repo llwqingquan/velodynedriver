@@ -39,7 +39,7 @@ Record::Record(ros::NodeHandle node, ros::NodeHandle private_nh)
   // subscribe to velodyne_points
   sub1_ = node.subscribe("velodyne_points", 5000, &Record::recordpoints, (Record*)this);
   // subscribe to imu_msg
-  // sub2_ = node.subscribe("imu_msg", 5000, &Record::recordimu, (Record*)this);
+  sub2_ = node.subscribe("imu_msg", 5000, &Record::recordimu, (Record*)this);
 }
 
 /** @brief Destructor. */
@@ -53,15 +53,15 @@ Record::~Record()
 void Record::recordpoints(const sensor_msgs::PointCloud2ConstPtr& msg)
 {
   // bag_.write("velodyne_points", ros::Time::now(), msg);
-  bag_.write("velodyne_points", msg->header.stamp, msg);
-  ROS_INFO_THROTTLE(1, "velodyne_points is writing!");
+  bag_.write("/velodyne_points", msg->header.stamp, msg);
+  ROS_INFO_THROTTLE(2, "bag is writing: point_cloud!");
 }
 
 /** @brief Callback for record imu data. */
 void Record::recordimu(const sensor_msgs::Imu imu_msg)
 {
   // bag_.write("imu", ros::Time::now(), imu_msg);
-  bag_.write("imu", imu_msg.header.stamp, imu_msg);
-  ROS_INFO_THROTTLE(1, "imu_msg is writing!");
+  bag_.write("/imu/data", imu_msg.header.stamp, imu_msg);
+  ROS_INFO_THROTTLE(2, "bag is writing: imu_data!");
 }
 }  // namespace velodyne_pointcloud

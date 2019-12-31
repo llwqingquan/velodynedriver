@@ -52,7 +52,7 @@ Imu::Imu(ros::NodeHandle node, ros::NodeHandle private_nh)
   imuFile_.open(config_.file_name, std::ios::in | std::ios::binary);
   if (imuFile_.is_open())
   {
-    ROS_INFO("IMU file is open.");
+    ROS_INFO_STREAM("Opening IMU file \""<<config_.file_name<<"\"");
   }
   else
   {
@@ -82,7 +82,7 @@ bool Imu::process()
   }
   else if (imuFile_.eof())
   {
-    ROS_INFO_THROTTLE(1, "IMU file reach the end!");
+    ROS_INFO_THROTTLE(2, "IMU file reach the end!");
     // imuFile_.close();
     return false;
   }
