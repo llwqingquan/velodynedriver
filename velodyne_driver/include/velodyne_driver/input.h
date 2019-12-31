@@ -125,13 +125,17 @@ public:
             std::string filename = "",
             bool read_once = false,
             bool read_fast = false,
+            bool use_pcap_utc_time = false,
             double repeat_delay = 0.0);
   virtual ~InputPCAP();
 
   virtual int getPacket(velodyne_msgs::VelodynePacket *pkt,
                         const double time_offset);
   void setDeviceIP(const std::string& ip);
-
+  
+  time_t time_UTC_sec_;
+  
+  
 private:
   ros::Rate packet_rate_;
   std::string filename_;
@@ -142,6 +146,7 @@ private:
   bool read_once_;
   bool read_fast_;
   double repeat_delay_;
+  bool use_pcap_utc_time_;
 };
 
 }  // namespace velodyne_driver

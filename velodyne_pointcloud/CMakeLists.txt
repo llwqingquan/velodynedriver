@@ -21,6 +21,7 @@ set(${PROJECT_NAME}_CATKIN_DEPS
     velodyne_msgs
     dynamic_reconfigure
     diagnostic_updater
+    rosbag
 )
 
 find_package(catkin REQUIRED COMPONENTS

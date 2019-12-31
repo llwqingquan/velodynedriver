@@ -40,20 +40,24 @@
 
 int main(int argc, char** argv)
 {
+  // start the driver 
   ros::init(argc, argv, "velodyne_node");
   ros::NodeHandle node;
   ros::NodeHandle private_nh("~");
 
   // start the driver
   velodyne_driver::VelodyneDriver dvr(node, private_nh);
-
   // loop until shut down or end of file
   while(ros::ok())
     {
       // poll device until end of file
       bool polled_ = dvr.poll();
+
+      //llwTest
+      ROS_INFO("LLWpollState=%3d",polled_);
+
       if (!polled_)
-        ROS_ERROR_THROTTLE(1.0, "Velodyne - Failed to poll device.");
+      ROS_ERROR_THROTTLE(1.0, "Velodyne - Failed to poll device.");
 
       ros::spinOnce();
     }

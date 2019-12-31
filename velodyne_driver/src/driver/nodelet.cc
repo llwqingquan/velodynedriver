@@ -79,6 +79,8 @@ private:
 
 void DriverNodelet::onInit()
 {
+  //llwTest
+  ROS_INFO("LLW ON INIT");
   // start the driver
   dvr_.reset(new VelodyneDriver(getNodeHandle(), getPrivateNodeHandle(), getName()));
 
@@ -91,6 +93,7 @@ void DriverNodelet::onInit()
 /** @brief Device poll thread main loop. */
 void DriverNodelet::devicePoll()
 {
+  ros::Duration(2).sleep();
   while(ros::ok())
     {
       // poll device until end of file

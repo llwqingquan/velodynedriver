@@ -6,11 +6,12 @@
   <arg name="device_ip" default="" />
   <arg name="frame_id" default="velodyne" />
   <arg name="manager" default="$(arg frame_id)_nodelet_manager" />
-  <arg name="model" default="64E" />
+  <arg name="model" default="32C" />
   <arg name="pcap" default="" />
   <arg name="port" default="2368" />
   <arg name="read_fast" default="false" />
   <arg name="read_once" default="false" />
+  <arg name="use_pcap_utc_time" default="true" />
   <arg name="repeat_delay" default="0.0" />
   <arg name="rpm" default="600.0" />
   <arg name="gps_time" default="false" />
@@ -30,6 +31,7 @@
     <param name="port" value="$(arg port)" />
     <param name="read_fast" value="$(arg read_fast)"/>
     <param name="read_once" value="$(arg read_once)"/>
+    <param name="use_pcap_utc_time" value="$(arg use_pcap_utc_time)"/>
     <param name="repeat_delay" value="$(arg repeat_delay)"/>
     <param name="rpm" value="$(arg rpm)"/>
     <param name="gps_time" value="$(arg gps_time)"/>

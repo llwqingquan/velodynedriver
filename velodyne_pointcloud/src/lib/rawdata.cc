@@ -275,7 +275,7 @@ inline float SQR(float val) { return val*val; }
       unpack_vlp16(pkt, data, scan_start_time);
       return;
     }
-
+    ROS_INFO("numlasers!=16");
     float time_diff_start_to_this_packet = (pkt.stamp - scan_start_time).toSec();
     
     const raw_packet_t *raw = (const raw_packet_t *) &pkt.data[0];
@@ -441,49 +441,50 @@ inline float SQR(float val) { return val*val; }
     int azimuth_corrected;
     float x, y, z;
     float intensity;
-
     float time_diff_start_to_this_packet = (pkt.stamp - scan_start_time).toSec();
 
     const raw_packet_t *raw = (const raw_packet_t *) &pkt.data[0];
-
+    int8_t stepTest = 0;
     for (int block = 0; block < BLOCKS_PER_PACKET; block++) {
-
+      stepTest=1;
       // ignore packets with mangled or otherwise different contents
       if (UPPER_BANK != raw->blocks[block].header) {
         // Do not flood the log with messages, only issue at most one
         // of these warnings per minute.
-        ROS_WARN_STREAM_THROTTLE(60, "skipping invalid VLP-16 packet: block "
+        ROS_WARN_STREAM( "skipping invalid VLP-16 packet: block "
                                  << block << " header value is "
                                  << raw->blocks[block].header);
         return;                         // bad packet: skip the rest
       }
-
+      stepTest=2;
       // Calculate difference between current and next block's azimuth angle.
       azimuth = (float)(raw->blocks[block].rotation);
       if (block < (BLOCKS_PER_PACKET-1)){
-	raw_azimuth_diff = raw->blocks[block+1].rotation - raw->blocks[block].rotation;
+	      raw_azimuth_diff = raw->blocks[block+1].rotation - raw->blocks[block].rotation;
         azimuth_diff = (float)((36000 + raw_azimuth_diff)%36000);
-	// some packets contain an angle overflow where azimuth_diff < 0 
-	if(raw_azimuth_diff < 0)//raw->blocks[block+1].rotation - raw->blocks[block].rotation < 0)
-	  {
-	    ROS_WARN_STREAM_THROTTLE(60, "Packet containing angle overflow, first angle: " << raw->blocks[block].rotation << " second angle: " << raw->blocks[block+1].rotation);
-	    // if last_azimuth_diff was not zero, we can assume that the velodyne's speed did not change very much and use the same difference
-	    if(last_azimuth_diff > 0){
-	      azimuth_diff = last_azimuth_diff;
-	    }
-	    // otherwise we are not able to use this data
-	    // TODO: we might just not use the second 16 firings
-	    else{
-	      continue;
-	    }
-	  }
+	      // some packets contain an angle overflow where azimuth_diff < 0 
+	      // if(raw_azimuth_diff < 0)//raw->blocks[block+1].rotation - raw->blocks[block].rotation < 0)
+	      // {
+	      //   ROS_WARN_STREAM( "Packet containing angle overflow, first angle: " << raw->blocks[block].rotation << " second angle: " << raw->blocks[block+1].rotation);
+	      //   // if last_azimuth_diff was not zero, we can assume that the velodyne's speed did not change very much and use the same difference
+	      //   if(last_azimuth_diff > 0){
+	      //     azimuth_diff = last_azimuth_diff;
+	      //   }
+	      //   // otherwise we are not able to use this data
+	      //   // TODO: we might just not use the second 16 firings
+	      //   else{
+	      //     continue;
+	      //   }
+	      // }
         last_azimuth_diff = azimuth_diff;
       }else{
         azimuth_diff = last_azimuth_diff;
       }
 
       for (int firing=0, k=0; firing < VLP16_FIRINGS_PER_BLOCK; firing++){
+        stepTest=3;
         for (int dsr=0; dsr < VLP16_SCANS_PER_FIRING; dsr++, k+=RAW_SCAN_SIZE){
+          stepTest=4;
           velodyne_pointcloud::LaserCorrection &corrections = calibration_.laser_corrections[dsr];
 
           /** Position Calculation */
@@ -503,7 +504,7 @@ inline float SQR(float val) { return val*val; }
                ||(config_.min_angle > config_.max_angle 
                && (azimuth_corrected <= config_.max_angle 
                || azimuth_corrected >= config_.min_angle))){
-
+            stepTest=5;
             // convert polar coordinates to Euclidean XYZ
             float distance = tmp.uint * calibration_.distance_resolution_m;
             distance += corrections.dist_correction;
@@ -610,5 +611,6 @@ inline float SQR(float val) { return val*val; }
         data.newLine();
       }
     }
+    ROS_INFO_STREAM_COND(data.cloud.width==0,"stepTest= "<<stepTest<<" test");
   }
 } // namespace velodyne_rawdata

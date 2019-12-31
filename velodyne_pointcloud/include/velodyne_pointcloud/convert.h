@@ -73,6 +73,7 @@ class Convert
     ros::Publisher output_;
 
     boost::shared_ptr<velodyne_rawdata::DataContainerBase> container_ptr_;
+    boost::shared_ptr<velodyne_rawdata::DataContainerBase> container_ptr2_;
 
     boost::mutex reconfigure_mtx_;
 

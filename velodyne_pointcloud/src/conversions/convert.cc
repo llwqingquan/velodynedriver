@@ -12,11 +12,12 @@
     This class converts raw Velodyne 3D LIDAR packets to PointCloud2.
 
 */
-
+#include "string.h"
 #include "velodyne_pointcloud/convert.h"
 
 #include <velodyne_pointcloud/pointcloudXYZIR.h>
 #include <velodyne_pointcloud/organized_cloudXYZIR.h>
+#include <velodyne_pointcloud/pointcloudXYZI.h>
 
 namespace velodyne_pointcloud
 {
@@ -37,25 +38,30 @@ namespace velodyne_pointcloud
         ROS_ERROR_STREAM("Could not load calibration file!");
     }
 
-    if(config_.organize_cloud)
-    {
-      container_ptr_ = boost::shared_ptr<OrganizedCloudXYZIR>(
-          new OrganizedCloudXYZIR(config_.max_range, config_.min_range,
-              config_.target_frame, config_.fixed_frame,
-              config_.num_lasers, data_->scansPerPacket()));
-    }
-    else
-    {
-      container_ptr_ = boost::shared_ptr<PointcloudXYZIR>(
-          new PointcloudXYZIR(config_.max_range, config_.min_range,
+    // if(config_.organize_cloud)
+    // {
+    //   container_ptr_ = boost::shared_ptr<OrganizedCloudXYZIR>(
+    //       new OrganizedCloudXYZIR(config_.max_range, config_.min_range,
+    //           config_.target_frame, config_.fixed_frame,
+    //           config_.num_lasers, data_->scansPerPacket()));
+    // }
+    // else
+    // {
+    //   container_ptr_ = boost::shared_ptr<PointcloudXYZIR>(
+    //       new PointcloudXYZIR(config_.max_range, config_.min_range,
+    //           config_.target_frame, config_.fixed_frame,
+    //           data_->scansPerPacket()));
+    // }
+
+    // llw add 20191219
+    container_ptr_ = boost::shared_ptr<PointcloudXYZI>(
+          new PointcloudXYZI(config_.max_range, config_.min_range,
               config_.target_frame, config_.fixed_frame,
               data_->scansPerPacket()));
-    }
-
 
     // advertise output point cloud (before subscribing to input data)
     output_ =
-      node.advertise<sensor_msgs::PointCloud2>("velodyne_points", 10);
+      node.advertise<sensor_msgs::PointCloud2>("velodyne_points", 5000);
 
     srv_ = boost::make_shared <dynamic_reconfigure::Server<velodyne_pointcloud::
       CloudNodeConfig> > (private_nh);
@@ -66,7 +72,7 @@ namespace velodyne_pointcloud
 
     // subscribe to VelodyneScan packets
     velodyne_scan_ =
-      node.subscribe("velodyne_packets", 10,
+      node.subscribe("velodyne_packets", 5000,
                      &Convert::processScan, (Convert *) this,
                      ros::TransportHints().tcpNoDelay(true));
 
@@ -98,21 +104,27 @@ namespace velodyne_pointcloud
     if(first_rcfg_call || config.organize_cloud != config_.organize_cloud){
         first_rcfg_call = false;
         config_.organize_cloud = config.organize_cloud;
-        if(config_.organize_cloud) // TODO only on change
-        {
-            ROS_INFO_STREAM("Using the organized cloud format...");
-            container_ptr_ = boost::shared_ptr<OrganizedCloudXYZIR>(
-                new OrganizedCloudXYZIR(config_.max_range, config_.min_range,
-                    config_.target_frame, config_.fixed_frame,
-                    config_.num_lasers, data_->scansPerPacket()));
-        }
-        else
-        {
-            container_ptr_ = boost::shared_ptr<PointcloudXYZIR>(
-                new PointcloudXYZIR(config_.max_range, config_.min_range,
-                    config_.target_frame, config_.fixed_frame,
-                    data_->scansPerPacket()));
-        }
+        // if(config_.organize_cloud) // TODO only on change
+        // {
+        //     ROS_INFO_STREAM("Using the organized cloud format...");
+        //     container_ptr_ = boost::shared_ptr<OrganizedCloudXYZIR>(
+        //         new OrganizedCloudXYZIR(config_.max_range, config_.min_range,
+        //             config_.target_frame, config_.fixed_frame,
+        //             config_.num_lasers, data_->scansPerPacket()));
+        // }
+        // else
+        // {
+        //     container_ptr_ = boost::shared_ptr<PointcloudXYZIR>(
+        //         new PointcloudXYZIR(config_.max_range, config_.min_range,
+        //             config_.target_frame, config_.fixed_frame,
+        //             data_->scansPerPacket()));
+        // }
+        
+        // llw add 20191219
+        container_ptr_ = boost::shared_ptr<PointcloudXYZI>(
+              new PointcloudXYZI(config_.max_range, config_.min_range,
+                  config_.target_frame, config_.fixed_frame,
+                  data_->scansPerPacket()));        
     }
 
     container_ptr_->configure(config_.max_range, config_.min_range, config_.fixed_frame, config_.target_frame);
@@ -122,6 +134,7 @@ namespace velodyne_pointcloud
   /** @brief Callback for raw scan messages. */
   void Convert::processScan(const velodyne_msgs::VelodyneScan::ConstPtr &scanMsg)
   {
+    int test=0;
     if (output_.getNumSubscribers() == 0)         // no one listening?
       return;                                     // avoid much work
 
@@ -134,7 +147,8 @@ namespace velodyne_pointcloud
     {
       data_->unpack(scanMsg->packets[i], *container_ptr_, scanMsg->header.stamp);
     }
-
+    ROS_INFO_STREAM_COND(container_ptr_->cloud.width==0,"cloud.header.stamp= "<<container_ptr_->cloud.header.stamp<<"test"<<test);
+    ROS_INFO_STREAM_COND(container_ptr_->cloud.width==0,"scanMsg->packets= "<<scanMsg->packets[0].data[0]);
     // publish the accumulated cloud message
     diag_topic_->tick(scanMsg->header.stamp);
     diagnostics_.update();

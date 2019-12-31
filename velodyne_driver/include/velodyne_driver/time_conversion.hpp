@@ -75,4 +75,49 @@ ros::Time rosTimeFromGpsTimestamp(const uint8_t * const data) {
     return stamp;
 }
 
+  /***********************************************************************
+  * 函数说明:UTC转周秒 然后存储BUF
+  * 输入参数:unsigned char *buf :  time :utc us
+  * 输出参数:
+  * 返回参数:周秒
+  	打印调试代码:
+	char *wday[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+	printf("%f,",tempD);
+	printf("%d-%d-%d ", (p_tm->tm_year+1900), (p_tm->tm_mon+1), p_tm->tm_mday);
+	printf("%s %d:%d:%d\n", wday[p_tm->tm_wday], p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+  ***********************************************************************/
+ uint32_t timeConvert(unsigned long long time)
+ {
+	 struct tm *p_tm;
+	 double tempD;
+	 time_t timep;
+	 
+	 timep=time+18U;//转换
+	 p_tm = gmtime(&timep); /*获取GMT时间*/
+	 tempD=p_tm->tm_wday*86400+(p_tm->tm_hour)*3600+ p_tm->tm_min*60+p_tm->tm_sec;
+	//  tempD+=(double)((double)(time%1000000)/1000000.0);
+	//  tempD-=0.004;//IMU 获取的是上一次采样值
+	 
+	 return tempD;
+ } 
+
+ros::Time rosTimeFromUtcTimestamp(const uint8_t * const data, time_t time_utc_sec) {
+    const int HOUR_TO_SEC = 3600;
+    // time for each packet is a 4 byte uint
+    // It is the number of microseconds from the top of the hour
+    uint32_t usecs = (uint32_t) ( ((uint32_t) data[3]) << 24 |
+                                  ((uint32_t) data[2] ) << 16 |
+                                  ((uint32_t) data[1] ) << 8 |
+                                  ((uint32_t) data[0] ));
+    ros::Time time_nom;
+    time_nom.sec = timeConvert(time_utc_sec); // conver to week sec
+    time_nom.nsec = 0;
+    uint32_t cur_hour = time_utc_sec / HOUR_TO_SEC;
+    uint32_t sec = timeConvert((cur_hour * HOUR_TO_SEC) + (usecs / 1000000)); //convert to week sec
+    // sec = time_utc_sec;
+    ros::Time stamp = ros::Time(sec,(usecs % 1000000) * 1000);
+    stamp = resolveHourAmbiguity(stamp, time_nom);
+    return stamp;
+}
+
 #endif //VELODYNE_DRIVER_TIME_CONVERSION_HPP

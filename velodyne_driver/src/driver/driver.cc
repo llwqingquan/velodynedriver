@@ -90,7 +90,8 @@ VelodyneDriver::VelodyneDriver(ros::NodeHandle node,
     }
   else if (config_.model == "VLP16")
     {
-      packet_rate = 754;             // 754 Packets/Second for Last or Strongest mode 1508 for dual (VLP-16 User Manual)
+      // packet_rate = 754;             // 754 Packets/Second for Last or Strongest mode 1508 for dual (VLP-16 User Manual)
+      packet_rate = 1508;             // 754 Packets/Second for Last or Strongest mode 1508 for dual (VLP-16 User Manual)
       model_full_name = "VLP-16";
     }
   else
@@ -108,6 +109,7 @@ VelodyneDriver::VelodyneDriver(ros::NodeHandle node,
   // (fractions rounded up)
   config_.npackets = (int) ceil(packet_rate / frequency);
   private_nh.getParam("npackets", config_.npackets);
+  config_.npackets = 1;
   ROS_INFO_STREAM("publishing " << config_.npackets << " packets per scan");
 
   // if we are timestamping based on the first or last packet in the scan
@@ -183,7 +185,7 @@ VelodyneDriver::VelodyneDriver(ros::NodeHandle node,
 
   // raw packet output topic
   output_ =
-    node.advertise<velodyne_msgs::VelodyneScan>("velodyne_packets", 10);
+    node.advertise<velodyne_msgs::VelodyneScan>("velodyne_packets", 5000);
 
   last_azimuth_ = -1;
 }
