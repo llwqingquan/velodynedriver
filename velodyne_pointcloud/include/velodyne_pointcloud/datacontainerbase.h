@@ -122,7 +122,7 @@ public:
   const sensor_msgs::PointCloud2& finishCloud()
   {
     cloud.data.resize(cloud.point_step * cloud.width * cloud.height);
-
+    cloud.row_step = cloud.point_step * cloud.width * cloud.height;
     if (!config_.target_frame.empty())
     {
       cloud.header.frame_id = config_.target_frame;

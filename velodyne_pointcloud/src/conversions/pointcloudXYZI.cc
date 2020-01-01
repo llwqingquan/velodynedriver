@@ -51,8 +51,8 @@ void PointcloudXYZI::newLine()
 void PointcloudXYZI::addPoint(float x, float y, float z, const uint16_t ring, const uint16_t azimuth,
                               const float distance, const float intensity, const float time)
 {
-  if (!pointInRange(distance))
-    return;
+  // if (!pointInRange(distance))
+  //   return;
 
   // convert polar coordinates to Euclidean XYZ
   if (config_.transform)

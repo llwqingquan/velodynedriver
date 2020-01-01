@@ -34,8 +34,9 @@ private:
   // configuration parameters
   struct
   {
-    std::string file_name;  //
-    std::string imu_ID;
+    std::string file_name;
+    std::string imu_type;
+    std::string frame_id;
     bool imr_header;
     double gyro_scale;
     double accel_scale;

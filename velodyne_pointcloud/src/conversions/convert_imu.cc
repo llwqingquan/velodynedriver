@@ -25,9 +25,14 @@ Imu::Imu(ros::NodeHandle node, ros::NodeHandle private_nh)
     ROS_ERROR("get IMU file error!");
   }
 
-  if (!private_nh.getParam("imu_ID", config_.imu_ID))
+  if (!private_nh.getParam("imu_type", config_.imu_type))
   {
-    ROS_ERROR("need to set IMU ID!");
+    ROS_ERROR("need to set IMU type!");
+  }
+
+  if (!private_nh.getParam("imu_frame_ID", config_.frame_id))
+  {
+    ROS_ERROR("need to set IMU frame ID!");
   }
 
   if (!private_nh.getParam("imu_freq_Hz", config_.freq))
@@ -35,15 +40,19 @@ Imu::Imu(ros::NodeHandle node, ros::NodeHandle private_nh)
     ROS_ERROR("need to set IMU data Frequency!");
   }
 
-  if (config_.imu_ID == "ADIS16465")
+  if (config_.imu_type == "ADIS16465")
   {
     config_.gyro_scale = 1.0 / 2982616.178 * config_.freq;
     config_.accel_scale = 1.0 / 21474836.48 * config_.freq;
   }
-  else if (config_.imu_ID == "STIM300")
+  else if (config_.imu_type == "STIM300")
   {
     config_.gyro_scale = 1.0 / 2097152.0 * config_.freq;
     config_.accel_scale = 1.0 / 4194304.0 * config_.freq;
+  }
+  else
+  {
+    ROS_ERROR("unknown IMU type!");
   }
 
   private_nh.param("imr_header", config_.imr_header, false);
@@ -52,7 +61,7 @@ Imu::Imu(ros::NodeHandle node, ros::NodeHandle private_nh)
   imuFile_.open(config_.file_name, std::ios::in | std::ios::binary);
   if (imuFile_.is_open())
   {
-    ROS_INFO_STREAM("Opening IMU file \""<<config_.file_name<<"\"");
+    ROS_INFO_STREAM("Opening IMU file \"" << config_.file_name << "\"");
   }
   else
   {
@@ -60,7 +69,7 @@ Imu::Imu(ros::NodeHandle node, ros::NodeHandle private_nh)
   }
 
   imu_.header.seq = 0;
-
+  imu_.header.frame_id = config_.frame_id;
   // creat publish topic
   imu_pub_ = node.advertise<sensor_msgs::Imu>("imu_msg", 5000);
 }
@@ -77,7 +86,7 @@ bool Imu::process()
 {
   if (!imuFile_.is_open())
   {
-    ROS_ERROR_THROTTLE(1,"File open failed!");
+    ROS_ERROR_THROTTLE(1, "File open failed!");
     return false;
   }
   else if (imuFile_.eof())
