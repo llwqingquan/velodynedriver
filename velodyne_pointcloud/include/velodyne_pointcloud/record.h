@@ -50,6 +50,8 @@ namespace velodyne_pointcloud
     struct
     {
       std::string bag_dir;            // 
+      std::string topic_name_lidar;
+      std::string topic_name_imu;
     } config_;
 
     // boost::shared_ptr<PointcloudXYZI> cont_ptr_;

@@ -110,7 +110,7 @@ VelodyneDriver::VelodyneDriver(ros::NodeHandle node,
   config_.npackets = (int) ceil(packet_rate / frequency);
   int npackets;
   private_nh.getParam("packets_per_scan", npackets);
-  if (npackets!=0)
+  if (npackets>0)
   {
     private_nh.getParam("packets_per_scan", config_.npackets);
   } 

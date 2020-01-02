@@ -27,7 +27,15 @@ Record::Record(ros::NodeHandle node, ros::NodeHandle private_nh)
   // private_nh.param("bag_dir",config_.bag_dir,std::string("/home/llw/data1/bag/"));
   if (!private_nh.getParam("bag_dir", config_.bag_dir))
   {
-    ROS_ERROR("set the bag file directory!");
+    ROS_ERROR("recordBag: please set the bag file directory!");
+  }
+  if (!private_nh.getParam("topic_name_lidar", config_.topic_name_lidar))
+  {
+    ROS_ERROR("recordBag: please set lidar topic name!");
+  }
+  if (!private_nh.getParam("topic_name_imu", config_.topic_name_imu))
+  {
+    ROS_ERROR("recordBag: please set imu topic name!");
   }
   ros::Time Time = ros::Time::now();
   time_t timesec = Time.sec;
@@ -57,7 +65,7 @@ Record::~Record()
 void Record::recordpoints(const sensor_msgs::PointCloud2ConstPtr& msg)
 {
   // bag_.write("velodyne_points", ros::Time::now(), msg);
-  bag_.write("horizon_laser", msg->header.stamp, msg);
+  bag_.write(config_.topic_name_lidar, msg->header.stamp, msg);
   ROS_INFO_THROTTLE(2, "bag is writing: point_cloud!");
 }
 
@@ -65,7 +73,7 @@ void Record::recordpoints(const sensor_msgs::PointCloud2ConstPtr& msg)
 void Record::recordimu(const sensor_msgs::Imu imu_msg)
 {
   // bag_.write("imu", ros::Time::now(), imu_msg);
-  bag_.write("/imu", imu_msg.header.stamp, imu_msg);
+  bag_.write(config_.topic_name_imu, imu_msg.header.stamp, imu_msg);
   ROS_INFO_THROTTLE(2, "bag is writing: imu_data!");
 }
 }  // namespace velodyne_pointcloud

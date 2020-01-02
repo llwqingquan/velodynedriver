@@ -42,13 +42,13 @@ Imu::Imu(ros::NodeHandle node, ros::NodeHandle private_nh)
 
   if (config_.imu_type == "ADIS16465")
   {
-    config_.gyro_scale = 1.0 / 2982616.178 * config_.freq;
-    config_.accel_scale = 1.0 / 21474836.48 * config_.freq;
+    config_.gyro_scale = 1.0 / 2982616.178 * config_.freq * M_PI / 180.0;
+    config_.accel_scale = 1.0 / 21474836.48 * config_.freq * M_PI / 180.0;
   }
   else if (config_.imu_type == "STIM300")
   {
-    config_.gyro_scale = 1.0 / 2097152.0 * config_.freq;
-    config_.accel_scale = 1.0 / 4194304.0 * config_.freq;
+    config_.gyro_scale = 1.0 / 2097152.0 * config_.freq * M_PI / 180.0;
+    config_.accel_scale = 1.0 / 4194304.0 * config_.freq * M_PI / 180.0;
   }
   else
   {

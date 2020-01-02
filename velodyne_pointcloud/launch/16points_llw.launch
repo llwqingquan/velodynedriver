@@ -11,7 +11,7 @@
   <arg name="max_range" default="130.0" />
   <arg name="min_range" default="0.4" />
   <!--put the pcap and imu file in the same directory-->
-  <arg name="pacp_imu_dir" default="/home/llw/data1/Downloads/datavlp16/20191231_155037"/>
+  <arg name="pacp_imu_dir" default="/home/llw/data1/Downloads/datavlp16/20191231_154515"/>
   <arg name="pcap" default="$(arg pacp_imu_dir)/0_lidar.pcap" />
   <arg name="packets_per_scan" default="1" />
   <arg name="port" default="" />
@@ -59,7 +59,8 @@
   <!-- start recordpoints_node -->
   <node pkg="velodyne_pointcloud" type="recordpoints_node" name="recordpoints_node" output="screen">
     <param name="bag_dir" value="/home/llw/data1/bag/" />
-
+    <param name="topic_name_lidar" value="velodyne_points" />
+    <param name="topic_name_imu" value="imu" />
   </node>
 
   <!-- start convert_imu_node -->

@@ -55,11 +55,11 @@ void PointcloudXYZI::addPoint(float x, float y, float z, const uint16_t ring, co
   //   return;
 
   // convert polar coordinates to Euclidean XYZ
-  if (config_.transform)
-  {
-    transformPoint(x, y, z);
-    ROS_INFO("points transformed!");
-  }
+  // if (config_.transform)
+  // {
+  //   transformPoint(x, y, z);
+  //   ROS_INFO("points transformed!");
+  // }
   *iter_x = x;
   *iter_y = y;
   *iter_z = z;

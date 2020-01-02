@@ -584,8 +584,11 @@ inline float SQR(float val) { return val*val; }
   
     
             /** Use standard ROS coordinate system (right-hand rule) */
-            float x_coord = y;
-            float y_coord = -x;
+            // float x_coord = y;
+            // float y_coord = -x;
+            // float z_coord = z;            
+            float x_coord = x;
+            float y_coord = y;
             float z_coord = z;
     
             /** Intensity Calculation */
